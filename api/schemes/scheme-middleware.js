@@ -1,17 +1,13 @@
 const Scheme = require('./scheme-model')
 
 const checkSchemeId = (req, res, next) => {
-  Scheme.find(req.params.id) 
+  Scheme.findById(req.params.scheme_id)
   .then(resp => {
-    if (!resp) {
-      res.status(404).json( {
-        "message": "scheme with scheme_id <actual id> not found"
-      })
-    } else {
-      next();
-    }
+    if (!resp){
+    res.status(404).json({message: `scheme with scheme_id ${req.params.scheme_id} not found`})
+    } else {next(); }
   }).catch(err => {
-
+    res.status(500).json({message: `Internal service error`})
   })
 }
 
@@ -35,7 +31,7 @@ if (req.body.name == undefined || req.body.name == '' || typeof(req.body.name) !
 */
 const validateStep = (req, res, next) => {
   const {instructions, step_number} = req.body
-if (isNan(step_number || step_number < 1)) {
+if (isNan(step_number) || step_number < 1) {
     res.status(400).json({ "message": "invalid step"})
   } else if (instructions == undefined || instructions == ''){
     res.status(400).json({ "message": "invalid step"})

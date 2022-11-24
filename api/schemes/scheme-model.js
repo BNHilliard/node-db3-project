@@ -1,4 +1,15 @@
-function find() { // EXERCISE A
+const db = require('../../data/db-config')
+
+function find() { 
+  
+return db('schemes as sc')
+.leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+.select('sc.*', 'st.step_id')
+.count('st.step_id as number_of_steps')
+.groupBy('sc.scheme_id')
+.orderBy('sc.scheme_id', 'asc')
+}
+  // EXERCISE A
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
     What happens if we change from a LEFT join to an INNER join?
@@ -15,9 +26,47 @@ function find() { // EXERCISE A
     2A- When you have a grasp on the query go ahead and build it in Knex.
     Return from this function the resulting dataset.
   */
-}
 
-function findById(scheme_id) { // EXERCISE B
+
+
+async function findById(scheme_id) { // EXERCISE B
+ const dbRes = await db('schemes as sc')
+  .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+  .select('sc.scheme_name', 'st.*')
+  .where('sc.scheme_id', scheme_id)
+  .orderBy('st.step_number', 'ASC')
+  
+  const result = {
+    scheme_id: dbRes[0].scheme_id, 
+    scheme_name: dbRes[0].scheme_name,
+    steps: []
+  }
+  
+  for (const row of dbRes) {
+    if (row.step_id != null) {
+      result.steps.push({step_id: row.step_id, step_number: row.step_number, instructions: row.instructions})
+    }
+  }
+
+  return result
+
+  // {
+  //   "scheme_id": 1,
+  //   "scheme_name": "World Domination",
+  //   "steps": [
+  //     {
+  //       "step_id": 2,
+  //       "step_number": 1,
+  //       "instructions": "solve prime number theory"
+  //     },
+  //     {
+  //       "step_id": 1,
+  //       "step_number": 2,
+  //       "instructions": "crack cyber security"
+  //     },
+  //     // etc
+  //   ]
+  // }
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -32,6 +81,8 @@ function findById(scheme_id) { // EXERCISE B
 
     2B- When you have a grasp on the query go ahead and build it in Knex
     making it parametric: instead of a literal `1` you should use `scheme_id`.
+
+    
 
     3B- Test in Postman and see that the resulting data does not look like a scheme,
     but more like an array of steps each including scheme information:
@@ -57,23 +108,7 @@ function findById(scheme_id) { // EXERCISE B
     4B- Using the array obtained and vanilla JavaScript, create an object with
     the structure below, for the case _when steps exist_ for a given `scheme_id`:
 
-      {
-        "scheme_id": 1,
-        "scheme_name": "World Domination",
-        "steps": [
-          {
-            "step_id": 2,
-            "step_number": 1,
-            "instructions": "solve prime number theory"
-          },
-          {
-            "step_id": 1,
-            "step_number": 2,
-            "instructions": "crack cyber security"
-          },
-          // etc
-        ]
-      }
+    
 
     5B- This is what the result should look like _if there are no steps_ for a `scheme_id`:
 
