@@ -31,7 +31,7 @@ if (req.body.scheme_name == undefined || req.body.scheme_name == '' || typeof(re
 */
 const validateStep = (req, res, next) => {
   const {instructions, step_number} = req.body
-if (typeof step_number !== Number || step_number < 1) {
+if (typeof step_number !== 'number' || step_number < 1) {
     res.status(400).json({ "message": "invalid step"})
   } else if (instructions == undefined || !instructions.trim()){
     res.status(400).json({ "message": "invalid step"})

@@ -171,13 +171,10 @@ function add(scheme) { // EXERCISE D
 }
 
 function addStep(scheme_id, step) { // EXERCISE E
-  return db('steps').insert(step)
-  .then(resp => {console.log(resp)})
-  /*
-    1E- This function adds a step to the scheme with the given `scheme_id`
-    and resolves to _all the steps_ belonging to the given `scheme_id`,
-    including the newly created one.
-  */
+  return db('steps').insert({...step, scheme_id})
+  .then(() => {return db('steps').where('scheme_id', scheme_id).orderBy('step_number', 'ASC')
+})
+
 }
 
 module.exports = {
