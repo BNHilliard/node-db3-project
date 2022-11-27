@@ -30,12 +30,12 @@ return db('schemes as sc')
 
 
 async function findById(scheme_id) { // EXERCISE B
- const dbRes = await db('schemes as sc')
+
+try { const dbRes = await db('schemes as sc')
   .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
   .select('sc.scheme_name', 'st.*')
   .where('sc.scheme_id', scheme_id)
   .orderBy('st.step_number', 'ASC')
-  
   const result = {
     scheme_id: dbRes[0].scheme_id, 
     scheme_name: dbRes[0].scheme_name,
@@ -47,9 +47,11 @@ async function findById(scheme_id) { // EXERCISE B
       result.steps.push({step_id: row.step_id, step_number: row.step_number, instructions: row.instructions})
     }
   }
-
   return result
-
+} catch {
+  return null
+}
+}
   // {
   //   "scheme_id": 1,
   //   "scheme_name": "World Domination",
@@ -118,9 +120,24 @@ async function findById(scheme_id) { // EXERCISE B
         "steps": []
       }
   */
+
+
+async function findSteps(scheme_id) { // EXERCISE C
+ try { const dbRes = await db('schemes as sc')
+.leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+.where('sc.scheme_id', scheme_id)
+.orderBy('st.step_number', 'asc')
+
+const result = []
+
+for (const row of dbRes) {
+  if (row.step_id != null) {
+    result.push({step_id: row.step_id, step_number: row.step_number, instructions: row.instructions, scheme_name: row.scheme_name})
+  }
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+return result }
+catch{ return null}
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
@@ -144,12 +161,18 @@ function findSteps(scheme_id) { // EXERCISE C
 }
 
 function add(scheme) { // EXERCISE D
+  return db('schemes').insert(scheme)
+  .then(([scheme_id]) => {
+    return db('schemes').where('scheme_id', scheme_id).first();
+  })
   /*
     1D- This function creates a new scheme and resolves to _the newly created scheme_.
   */
 }
 
 function addStep(scheme_id, step) { // EXERCISE E
+  return db('steps').insert(step)
+  .then(resp => {console.log(resp)})
   /*
     1E- This function adds a step to the scheme with the given `scheme_id`
     and resolves to _all the steps_ belonging to the given `scheme_id`,
